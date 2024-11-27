@@ -1,6 +1,13 @@
-from . import fhelmholtz
-from . import ftimmes
+import sys
+import os
 import numpy as np
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT_DIR not in sys.path:
+    sys.path.append(ROOT_DIR)
+
+import fhelmholtz  # noqa
+import ftimmes  # noqa
 
 # list of common blocks that hold interesting information
 CBLOCK_NAMES = ('crpc1', 'deedoo', 'etotc1', 'etapc1', 'ptotc1',
@@ -21,9 +28,9 @@ class HelmholtzOutput:
 
         # loop through and nicely reformat everything
         for cblock_name in CBLOCK_NAMES:
-            cblock = getattr(fhelmholtz,cblock_name)
+            cblock = getattr(fhelmholtz, cblock_name)
             for row_name in vars(cblock):
-                row_data = np.copy(getattr(cblock,row_name))
+                row_data = np.copy(getattr(cblock, row_name))
                 setattr(self, self._demangle(row_name), self._reshape(row_data))
 
     def _demangle(self, name):
@@ -45,9 +52,9 @@ class TimmesOutput:
 
         # loop through and nicely reformat everything
         for cblock_name in CBLOCK_NAMES:
-            cblock = getattr(ftimmes,cblock_name)
+            cblock = getattr(ftimmes, cblock_name)
             for row_name in vars(cblock):
-                row_data = np.copy(getattr(cblock,row_name))
+                row_data = np.copy(getattr(cblock, row_name))
                 setattr(self, self._demangle(row_name), self._reshape(row_data))
 
     def _demangle(self, name):
@@ -69,13 +76,13 @@ def _make_uniform_arrays(inputs):
     shape = (1,)
     for array in arrays:
         if array.size != 1:
-            size  = array.size
+            size  = array.size  # noqa
             shape = array.shape
             break
 
     outputs = []
     for array in arrays:
-        if array.size  == 1:
+        if array.size == 1:
             outputs.append(np.tile(array.flatten(), size))
         else:
             outputs.append(array.flatten())
@@ -96,10 +103,10 @@ def helmeos(dens, temp, abar, zbar):
     return HelmholtzOutput(size, shape)
 
 
-def helmeos_DE(dens, ener, abar, zbar, tguess = None):
+def helmeos_DE(dens, ener, abar, zbar, tguess=None):
 
     # set default temperature guess
-    if tguess == None:
+    if tguess is None:
         tguess = 1e7
 
     # make sure everything is the same size and shape
@@ -112,7 +119,7 @@ def helmeos_DE(dens, ener, abar, zbar, tguess = None):
     return HelmholtzOutput(size, shape)
 
 
-def helmeos_DP(dens, pres, abar, zbar, tguess = None):
+def helmeos_DP(dens, pres, abar, zbar, tguess=None):
 
     # set default temperature guess
     if tguess is None:
@@ -128,7 +135,7 @@ def helmeos_DP(dens, pres, abar, zbar, tguess = None):
     return HelmholtzOutput(size, shape)
 
 
-def helmeos_DS(dens, entr, abar, zbar, tguess = None):
+def helmeos_DS(dens, entr, abar, zbar, tguess=None):
 
     # set default temperature guess
     if tguess is None:
