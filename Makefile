@@ -2,7 +2,7 @@ FC=gfortran
 F2PY=f2py
 ROOT_DIR=$(shell pwd)
 HELM_TABLE=${ROOT_DIR}/helm_table.dat
-F2PY_FLAGS=-L${ROOT_DIR} --lower -I ${ROOT_DIR} --f90flags="-fPIC"
+F2PY_FLAGS=--backend=meson -L${ROOT_DIR} --lower -I ${ROOT_DIR} --f90flags="-fPIC"
 
 all: module
 
