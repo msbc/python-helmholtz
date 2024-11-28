@@ -2,13 +2,26 @@ FC=gfortran
 F2PY=f2py
 ROOT_DIR=$(shell pwd)
 HELM_TABLE=${ROOT_DIR}/helm_table.dat
-F2PY_FLAGS=--backend=meson -L${ROOT_DIR} --lower -I ${ROOT_DIR} --f90flags="-fPIC"
+
+# Determine the Python version
+PYTHON := $(shell which python3 || which python)
+PYTHON_VERSION := $(shell $(PYTHON) -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+
+# Set flags based on the Python version
+ifeq ($(shell echo "$(PYTHON_VERSION) >= 3.9" | bc), 1)
+  F2PY_FLAGS := --backend=meson -L${ROOT_DIR} --lower -I ${ROOT_DIR} --f90flags="-fPIC"
+	LIB1 := -lhelmholtz
+	LIB2 := -leosfxt
+else
+  F2PY_FLAGS := --fcompiler=${FC}
+	I_FLAG := -I
+endif
 
 all: module
 
 module: libhelmholtz.a libeosfxt.a
-	${F2PY} ${F2PY_FLAGS} -m fhelmholtz -c pycall.f90 helmholtz.o -lhelmholtz
-	${F2PY} ${F2PY_FLAGS} -m ftimmes -c pycall_eosfxt.f90 eosfxt.o -leosfxt
+	${F2PY} ${F2PY_FLAGS} -m fhelmholtz -c pycall.f90 ${I_FLAG} helmholtz.o ${LIB1}
+	${F2PY} ${F2PY_FLAGS} -m ftimmes -c pycall_eosfxt.f90 ${I_FLAG} eosfxt.o ${LIB2}
 
 test: test.o helmholtz.o
 	${FC} -o test.x test.o helmholtz.o
