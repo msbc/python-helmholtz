@@ -6,8 +6,14 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 if ROOT_DIR not in sys.path:
     sys.path.append(ROOT_DIR)
 
-import fhelmholtz  # noqa
-import ftimmes  # noqa
+try:
+    import fhelmholtz
+    import ftimmes
+except ImportError:
+    print("ERROR: Could not import the Fortran modules.")
+    print("       Did you compile the Fortran code?")
+    print("PYTHONPATH is set to: ", sys.path)
+    raise
 
 # list of common blocks that hold interesting information
 CBLOCK_NAMES = ('crpc1', 'deedoo', 'etotc1', 'etapc1', 'ptotc1',
